@@ -1,0 +1,22 @@
+# Discovery data (raw Azure resource output)
+Discovery/
+
+# Report output files
+*.html
+*.htm
+
+# Redaction scripts (contain sensitive resource names)
+Redact-*.ps1
+
+# Report configuration with environment-specific settings
+*.json
+!AsBuiltReport.Microsoft.Azure.json
+
+# Test output folders
+TestOutput/
+
+# Common sensitive files
+*.xml
+*.csv
+*.log
+*.txt
