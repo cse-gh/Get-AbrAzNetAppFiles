@@ -540,7 +540,6 @@ function Get-AbrAzNetAppFiles {
                                     Paragraph ($LocalizedData.SnapshotPoliciesSummary -f $AzSubscription.Name)
                                     BlankLine
 
-                                    $SpInfo = @()
                                     foreach ($Item in $AllSnapPolicies) {
                                         $Pol = $Item.Policy
                                         $PolShortName = $Pol.Name.Split('/')[-1]
@@ -549,25 +548,27 @@ function Get-AbrAzNetAppFiles {
                                         $Weekly = if ($Pol.WeeklySchedule -and $Pol.WeeklySchedule.SnapshotsToKeep) { "$($Pol.WeeklySchedule.Day) at $('{0:D2}' -f [int]$Pol.WeeklySchedule.Hour):$('{0:D2}' -f [int]$Pol.WeeklySchedule.Minute), keep $($Pol.WeeklySchedule.SnapshotsToKeep)" } else { $LocalizedData.NotConfigured }
                                         $Monthly = if ($Pol.MonthlySchedule -and $Pol.MonthlySchedule.SnapshotsToKeep) { "Day(s) $($Pol.MonthlySchedule.DaysOfMonth) at $('{0:D2}' -f [int]$Pol.MonthlySchedule.Hour):$('{0:D2}' -f [int]$Pol.MonthlySchedule.Minute), keep $($Pol.MonthlySchedule.SnapshotsToKeep)" } else { $LocalizedData.NotConfigured }
 
-                                        $SpInfo += [PSCustomObject][Ordered]@{
-                                            $LocalizedData.Name = $PolShortName
-                                            $LocalizedData.Account = $Item.Account
-                                            $LocalizedData.Enabled = if ($Pol.Enabled) { $LocalizedData.Yes } else { $LocalizedData.No }
-                                            $LocalizedData.HourlySchedule = $Hourly
-                                            $LocalizedData.DailySchedule = $Daily
-                                            $LocalizedData.WeeklySchedule = $Weekly
-                                            $LocalizedData.MonthlySchedule = $Monthly
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC "$($Item.Account) / $PolShortName" {
+                                            $SpObj = [PSCustomObject][Ordered]@{
+                                                $LocalizedData.Name = $PolShortName
+                                                $LocalizedData.Account = $Item.Account
+                                                $LocalizedData.Enabled = if ($Pol.Enabled) { $LocalizedData.Yes } else { $LocalizedData.No }
+                                                $LocalizedData.HourlySchedule = $Hourly
+                                                $LocalizedData.DailySchedule = $Daily
+                                                $LocalizedData.WeeklySchedule = $Weekly
+                                                $LocalizedData.MonthlySchedule = $Monthly
+                                            }
+                                            $TableParams = @{
+                                                Name = "Snapshot Policy - $PolShortName"
+                                                List = $true
+                                                ColumnWidths = 30, 70
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $SpObj | Table @TableParams
                                         }
                                     }
-                                    $TableParams = @{
-                                        Name = "Snapshot Policies - $($AzSubscription.Name)"
-                                        List = $true
-                                        ColumnWidths = 30, 70
-                                    }
-                                    if ($Report.ShowTableCaptions) {
-                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                    }
-                                    $SpInfo | Table @TableParams
                                 }
                             }
                         }
